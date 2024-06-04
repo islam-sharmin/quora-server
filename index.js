@@ -28,11 +28,19 @@ async function run() {
     await client.connect();
 
     const userCollection = client.db("quoraDb").collection("users");
+    const postCollection = client.db("quoraDb").collection("posts");
 
     // user related api
     app.get('/users', async (req, res) => {
       console.log(req.headers);
       const result = await userCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.get('/users/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await userCollection.findOne(query);
       res.send(result);
     })
 
@@ -49,6 +57,12 @@ async function run() {
       res.send(result);
     })
 
+    // post related api
+    app.post('/posts', async (req, res) => {
+      const post = req.body;
+      const result = await postCollection.insertOne(post);
+      res.send(result);
+    })
 
 
     // Send a ping to confirm a successful connection
