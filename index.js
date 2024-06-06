@@ -29,6 +29,7 @@ async function run() {
 
     const userCollection = client.db("quoraDb").collection("users");
     const postCollection = client.db("quoraDb").collection("posts");
+    const commentCollection = client.db("quoraDb").collection("comments");
 
     // user related api
     app.get('/users', async (req, res) => {
@@ -66,6 +67,13 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/posts/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await postCollection.findOne(query);
+      res.send(result);
+    })
+
     app.get('/posts/:email', async (req,res) => {
       console.log(req.params.email)
       const myEmail = req.params.email;
@@ -85,6 +93,13 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result = await postCollection.deleteOne(query);
+      res.send(result);
+    })
+
+    // comment related api
+    app.post('/comments', async (req, res) => {
+      const post = req.body;
+      const result = await commentCollection.insertOne(post);
       res.send(result);
     })
 
