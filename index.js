@@ -10,7 +10,7 @@ app.use(express.json());
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wfbdexs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -37,9 +37,11 @@ async function run() {
       res.send(result);
     })
 
-    app.get('/users/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) }
+     app.get('/users/:email', async (req, res) => {
+      console.log(req.params.email)
+      const myEmail = req.params.email;
+      const query = { email: myEmail };
+      console.log(myEmail)
       const result = await userCollection.findOne(query);
       res.send(result);
     })
@@ -57,10 +59,32 @@ async function run() {
       res.send(result);
     })
 
+
     // post related api
+    app.get('/posts', async (req, res) => {
+      const result = await postCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.get('/posts/:email', async (req,res) => {
+      console.log(req.params.email)
+      const myEmail = req.params.email;
+      const query = { email: myEmail };
+      console.log(myEmail)
+      const result = await postCollection.find(query).toArray();
+      res.send(result);
+    })
+
     app.post('/posts', async (req, res) => {
       const post = req.body;
       const result = await postCollection.insertOne(post);
+      res.send(result);
+    })
+
+    app.delete('/posts/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await postCollection.deleteOne(query);
       res.send(result);
     })
 
