@@ -75,12 +75,11 @@ async function run() {
       res.send(result);
     })
 
-     app.get('/users/:email', verifyToken, async (req, res) => {
-      console.log(req.params.email)
+    app.get('/users/:email', async (req, res) => {
       const myEmail = req.params.email;
       const query = { email: myEmail };
-      console.log(myEmail)
       const result = await userCollection.findOne(query);
+      console.log("user email result", result);
       res.send(result);
     })
 
@@ -101,8 +100,6 @@ async function run() {
 
     app.post('/users', async (req, res) => {
       const user = req.body;
-      // insert email if user doesn't exists
-      // you can do this many ways (1. email unique, 2. upsert and 3. simple checking)
       const query = { email: user.email }
       const existingUser = await userCollection.findOne(query);
       if (existingUser) {
@@ -124,7 +121,7 @@ async function run() {
       res.send(result);
     })
 
-    app.delete('/users/:id', verifyToken, verifyAdmin, async (req, res) => {
+    app.delete('/users/single/:id', verifyToken, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result = await userCollection.deleteOne(query);
@@ -138,14 +135,14 @@ async function run() {
       res.send(result);
     })
 
-    app.get('/posts/:id', async (req, res) => {
+    app.get('/posts/single/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result = await postCollection.findOne(query);
       res.send(result);
     })
 
-    app.get('/posts/:email', async (req,res) => {
+    app.get('/posts/:email', async (req, res) => {
       console.log(req.params.email)
       const myEmail = req.params.email;
       const query = { email: myEmail };
@@ -188,9 +185,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Quora is running')
+  res.send('Quora is running')
 })
 
 app.listen(port, () => {
-    console.log(`quora running on port ${port}`)
+  console.log(`quora running on port ${port}`)
 })
