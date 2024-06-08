@@ -31,6 +31,7 @@ async function run() {
     const userCollection = client.db("quoraDb").collection("users");
     const postCollection = client.db("quoraDb").collection("posts");
     const commentCollection = client.db("quoraDb").collection("comments");
+    const announcementCollection = client.db("quoraDb").collection("announcements");
 
 
     // jwt related api
@@ -186,6 +187,18 @@ async function run() {
     app.post('/comments', async (req, res) => {
       const post = req.body;
       const result = await commentCollection.insertOne(post);
+      res.send(result);
+    })
+
+    // announcement related api
+    app.get('/announcements', async (req, res) => {
+      const result = await announcementCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.post('/announcements', async (req, res) => {
+      const post = req.body;
+      const result = await announcementCollection.insertOne(post);
       res.send(result);
     })
 
