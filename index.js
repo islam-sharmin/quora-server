@@ -162,7 +162,7 @@ async function run() {
     app.patch('/posts/upvote/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
-      const updatedDoc = { $inc: { upVote: 1 } };
+      const updatedDoc = { $inc: { upVote: 1, totalVote: 1 } };
       const result = await postCollection.updateOne(filter, updatedDoc);
       res.send(result);
     });
@@ -171,7 +171,7 @@ async function run() {
     app.patch('/posts/downvote/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
-      const updatedDoc = { $inc: { downVote: 1 } };
+      const updatedDoc = { $inc: { downVote: 1, totalVote: -1 } };
       const result = await postCollection.updateOne(filter, updatedDoc);
       res.send(result);
     });
