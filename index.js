@@ -176,6 +176,14 @@ async function run() {
       res.send(result);
     });
 
+    app.patch('/posts/count/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = { $inc: { commentCount: 1} };
+      const result = await postCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
+
     app.delete('/posts/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -184,11 +192,39 @@ async function run() {
     })
 
     // comment related api
+    app.get('/comments', async (req, res) => {
+      const result = await commentCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.get('/comments/:title', async (req, res) => {
+      const title = req.params.title;
+      const query = { title: title };
+      const result = await commentCollection.find(query).toArray();
+      res.send(result);
+  });
+  
     app.post('/comments', async (req, res) => {
       const post = req.body;
       const result = await commentCollection.insertOne(post);
       res.send(result);
     })
+
+    app.patch('/status/:id', async (req, res) => {
+      const item = req.body;
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+          $set: {
+              feedback: item.feed,  // use 'feed' since that's what you're sending from the frontend
+              status: item.status
+          }
+      };
+      const result = await commentCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+  });
+  
+
 
     // announcement related api
     app.get('/announcements', async (req, res) => {
