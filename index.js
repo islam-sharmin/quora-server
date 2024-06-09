@@ -33,6 +33,7 @@ async function run() {
     const postCollection = client.db("quoraDb").collection("posts");
     const commentCollection = client.db("quoraDb").collection("comments");
     const announcementCollection = client.db("quoraDb").collection("announcements");
+    const paymentCollection = client.db("quoraDb").collection("payments");
 
 
     // jwt related api
@@ -117,6 +118,18 @@ async function run() {
       const updatedDoc = {
         $set: {
           role: 'admin'
+        }
+      }
+      const result = await userCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    })
+
+    app.patch('/usersBadge/:id', verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const updatedDoc = {
+        $set: {
+          badge: 'gold'
         }
       }
       const result = await userCollection.updateOne(filter, updatedDoc);
@@ -258,6 +271,13 @@ async function run() {
       res.send({
         clientSecret: paymentIntent.client_secret
       })
+    })
+
+    app.post('/payments', async(req, res) => {
+      const payment = req.body;
+      const paymentResult = await paymentCollection.insertOne(payment);
+      console.log('payment info', payment);
+      res.send(paymentResult);
     })
 
 
