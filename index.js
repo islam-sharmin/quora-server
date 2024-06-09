@@ -3,6 +3,7 @@ const app = express();
 const cors = require('cors');
 var jwt = require('jsonwebtoken');
 require('dotenv').config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -179,7 +180,7 @@ async function run() {
     app.patch('/posts/count/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
-      const updatedDoc = { $inc: { commentCount: 1} };
+      const updatedDoc = { $inc: { commentCount: 1 } };
       const result = await postCollection.updateOne(filter, updatedDoc);
       res.send(result);
     });
@@ -202,8 +203,8 @@ async function run() {
       const query = { title: title };
       const result = await commentCollection.find(query).toArray();
       res.send(result);
-  });
-  
+    });
+
     app.post('/comments', async (req, res) => {
       const post = req.body;
       const result = await commentCollection.insertOne(post);
@@ -215,16 +216,14 @@ async function run() {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const updatedDoc = {
-          $set: {
-              feedback: item.feed,  // use 'feed' since that's what you're sending from the frontend
-              status: item.status
-          }
+        $set: {
+          feedback: item.feed,  // use 'feed' since that's what you're sending from the frontend
+          status: item.status
+        }
       };
       const result = await commentCollection.updateOne(filter, updatedDoc);
       res.send(result);
-  });
-  
-
+    });
 
     // announcement related api
     app.get('/announcements', async (req, res) => {
@@ -236,6 +235,29 @@ async function run() {
       const post = req.body;
       const result = await announcementCollection.insertOne(post);
       res.send(result);
+    })
+
+    app.delete('/comments/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await commentCollection.deleteOne(query);
+      res.send(result);
+    })
+
+    // payment intent
+    app.post('/create-payment-intent', async (req, res) => {
+      const { price } = req.body;
+      const amount = parseInt(price * 100);
+      console.log(amount, 'amount inside the intent');
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ['card']
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret
+      })
     })
 
 
